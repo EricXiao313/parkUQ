@@ -1,30 +1,25 @@
-# ParkUQ DECO2500 Interactive Prototype
+# Park St Lucia — Community Parking Prototype
 
-A self-contained interactive web prototype based on the group's parking concept for UQ / St Lucia.
+A DECO2500 interactive concept for St Lucia residents, local workers, shoppers and visitors.
 
-## Run it
+## Open or publish
 
-The simplest option is to open `index.html` in a browser.
+Open `index.html` in a browser, or serve this folder with `python3 -m http.server 8080`.
+For the existing GitHub Pages project, replace `index.html`, `app.js` and `styles.css` in the publishing folder. Keep the files together. The repository name / existing URL does not change automatically.
 
-For the most reliable local preview, run a local server from this folder:
+## Changes
 
-```bash
-python3 -m http.server 8080
-```
+- Community branding, homepage, destinations, dashboard and About page.
+- Illustrative local shopping, neighbourhood, recreation, services and workday parking scenarios.
+- Removed campus-specific parking, student rates, campus destinations and shuttle assumptions.
+- Visible sample-data notice and working mobile navigation.
 
-Then open `http://localhost:8080`.
+## Interactions
 
-## Implemented interactions
+Destination entry, map/list views, price/duration/walk/availability filters, detail view, saved preferences and destination shortcuts.
 
-- Landing-page destination search
-- Map/list parking results
-- Price, duration, distance and availability filters
-- Parking detail page
-- Preferences saved with localStorage
-- Dashboard / recent searches
-- Responsive mobile layout
-- Simulated map pins, availability and directions interaction
+## Limits
 
-## Prototype limitation
+Every parking option, price, time limit, availability figure and walking time is invented for this prototype. Names describe scenarios, not verified parking facilities. The schematic map is not geographically accurate. Search changes the destination label but does not geocode or calculate routes. Directions, zoom and satellite actions remain simulations. Dashboard destinations and saved places are examples, not recorded personal history. No live parking data is connected.
 
-All parking availability and some parking details are sample prototype data. No live UQ / Council / PayStay API is connected.
+This revision is supplied as files. Publishing these files is a separate step.

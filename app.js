@@ -1,28 +1,29 @@
 const app = document.getElementById('app');
 
+// Illustrative parking scenarios, not verified facilities or live local data.
 const parkingData = [
-  { id:'central', name:'UQ Central Car Park', location:'UQ St Lucia', price:5, priceText:'$5 / hour', limit:2, limitText:'2 hours max', distance:3, available:12, status:'green', color:'green', payment:'PayStay app / Card', hours:'6:00 AM – 10:00 PM', notes:'Student rates available', x:63, y:31 },
-  { id:'community', name:'St Lucia Community Hall', location:'St Lucia', price:2, priceText:'$2 / hour', limit:4, limitText:'4 hours max', distance:8, available:5, status:'orange', color:'blue', payment:'Card / Council meter', hours:'7:00 AM – 6:00 PM', notes:'Council restrictions apply', x:24, y:58 },
-  { id:'falls', name:'J.C. Slaughter Falls Car Park', location:'Nearby alternative', price:0, priceText:'Free', limit:999, limitText:'Unlimited', distance:12, available:24, status:'green', color:'purple', payment:'Free', hours:'Open daily', notes:'Longer walking distance', x:72, y:73 },
-  { id:'hawken', name:'Hawken Village (IGA)', location:'Hawken Drive', price:3, priceText:'$3 / hour', limit:3, limitText:'3 hours max', distance:7, available:3, status:'red', color:'blue', payment:'Meter / Card', hours:'7:00 AM – 7:00 PM', notes:'Short-stay customer parking nearby', x:33, y:27 },
-  { id:'longpocket', name:'Long Pocket + Shuttle', location:'Long Pocket', price:0, priceText:'Free', limit:999, limitText:'Commuter parking', distance:15, available:18, status:'green', color:'purple', payment:'Free', hours:'Shuttle hours apply', notes:'Adds shuttle travel time', x:83, y:45 }
+  { id:'shops', name:'Local shops · short stay', location:'Hawken Drive area · illustrative option', price:3, priceText:'$3 / hour', limit:2, limitText:'2 hours max', distance:3, available:12, status:'green', color:'green', payment:'Card / meter (sample)', hours:'7:00 AM – 7:00 PM (sample)', notes:'Example for shopping and errands; check signs in a real visit.', x:33, y:27 },
+  { id:'neighbourhood', name:'Neighbourhood · visitor parking', location:'St Lucia residential area · illustrative option', price:0, priceText:'Free', limit:2, limitText:'2 hours max', distance:8, available:5, status:'orange', color:'blue', payment:'Free (sample)', hours:'Daytime (sample)', notes:'Example for visiting friends; actual permit rules are not verified.', x:24, y:58 },
+  { id:'recreation', name:'Recreation · longer stay', location:'St Lucia recreation area · illustrative option', price:0, priceText:'Free', limit:4, limitText:'4 hours max', distance:12, available:24, status:'green', color:'purple', payment:'Free (sample)', hours:'Daytime (sample)', notes:'Example for leisure visits; no real facility or availability is implied.', x:72, y:73 },
+  { id:'services', name:'Local services · short visit', location:'St Lucia local services area · illustrative option', price:2, priceText:'$2 / hour', limit:1, limitText:'1 hour max', distance:7, available:3, status:'red', color:'blue', payment:'Card / meter (sample)', hours:'8:00 AM – 6:00 PM (sample)', notes:'Example for appointments and quick visits.', x:63, y:31 },
+  { id:'work', name:'Workday · longer stay', location:'St Lucia neighbourhood centre · illustrative option', price:5, priceText:'$5 / hour', limit:8, limitText:'8 hours max', distance:15, available:18, status:'green', color:'purple', payment:'Card (sample)', hours:'7:00 AM – 7:00 PM (sample)', notes:'Example for local workers comparing price with walking distance.', x:83, y:45 }
 ];
 
 const state = {
   page: 'home',
-  destination: 'UQ Library',
+  destination: 'Hawken Drive shops',
   selected: parkingData[0].id,
   view: 'map',
   mapMode: 'map',
   filters: { cheap:false, long:false, near:false, available:false },
-  settings: JSON.parse(localStorage.getItem('parkuq-settings') || 'null') || {
+  settings: JSON.parse(localStorage.getItem('park-st-lucia-settings') || 'null') || {
     sort:'available', maxPrice:'any', minLimit:'any', onlyAvailable:true, includeFree:true
   }
 };
 
 function navMarkup(){
   const t = document.getElementById('nav-template');
-  return t.innerHTML;
+  return t.innerHTML + '<div class="prototype-banner">Community prototype · All parking details and walking times are illustrative, not live. Map not to scale.</div>';
 }
 
 function mount(page){
@@ -36,7 +37,8 @@ function wireNav(){
   document.querySelectorAll('[data-nav]').forEach(btn => btn.addEventListener('click', () => mount(btn.dataset.nav)));
   const menu = document.querySelector('.mobile-menu');
   if (menu) menu.addEventListener('click', () => {
-    showToast('Mobile navigation: use the ParkUQ logo, Map, Dashboard or Preferences from the desktop layout.');
+    const opened = document.querySelector('.nav-links').classList.toggle('is-open');
+    menu.setAttribute('aria-expanded', String(opened));
   });
 }
 
@@ -46,15 +48,15 @@ function renderHome(){
       ${navMarkup()}
       <main class="hero">
         <section class="hero-copy">
-          <h1>Find Parking<br>at UQ & St Lucia</h1>
-          <p>Compare availability, prices, time limits and walking distance before you arrive.</p>
+          <h1>Find parking.<br>Explore St Lucia.</h1>
+          <p>Parking for everyday life in St Lucia. Compare options for shopping, work, visiting friends and time outdoors.</p>
           <form class="search-box" id="home-search">
             <span class="icon">⌖</span>
-            <input id="home-destination" value="${escapeHtml(state.destination)}" placeholder="Enter your destination (e.g. UQ Library)" aria-label="Destination" />
+            <input id="home-destination" value="${escapeHtml(state.destination)}" placeholder="Enter your destination (e.g. Hawken Drive shops)" aria-label="Destination" />
             <button class="primary-btn" type="submit">Search</button>
           </form>
           <div class="feature-row">
-            <div class="feature"><div class="feature-icon">P</div><b>See availability</b><small>Live or recently updated</small></div>
+            <div class="feature"><div class="feature-icon">P</div><b>See availability</b><small>Sample availability</small></div>
             <div class="feature"><div class="feature-icon">$</div><b>Compare prices</b><small>Free and paid options</small></div>
             <div class="feature"><div class="feature-icon">◷</div><b>Check time limits</b><small>Avoid unsuitable spaces</small></div>
             <div class="feature"><div class="feature-icon">↟</div><b>Walking distance</b><small>Choose what works for you</small></div>
@@ -66,14 +68,14 @@ function renderHome(){
           <div class="hero-pin p2"><span>P</span></div>
           <div class="hero-pin p3"><span>P</span></div>
           <div class="hero-pin p4"><span>P</span></div>
-          <div class="hero-status"><strong>12 spaces near UQ Library</strong><span>Best match: UQ Central Car Park · 3 min walk</span></div>
+          <div class="hero-status"><strong>Explore local parking options</strong><span>Shops, neighbourhood visits and recreation</span></div>
         </aside>
       </main>
     </div>`;
   wireNav();
   document.getElementById('home-search').addEventListener('submit', e => {
     e.preventDefault();
-    state.destination = document.getElementById('home-destination').value.trim() || 'UQ Library';
+    state.destination = document.getElementById('home-destination').value.trim() || 'Hawken Drive shops';
     mount('map');
   });
 }
@@ -115,7 +117,7 @@ function mapSvg(rows){
       <text x="0" y="8" text-anchor="middle" fill="white" font-size="19" font-weight="800">P</text>
     </g>`;
   }).join('');
-  return `<svg class="map-svg" viewBox="0 0 1000 720" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Stylised map of St Lucia and UQ parking options">
+  return `<svg class="map-svg" viewBox="0 0 1000 720" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Schematic St Lucia parking map — illustrative positions only">
     <rect width="1000" height="720" fill="#e7efe9"/>
     <path d="M700 -50 C600 110 640 250 805 360 C900 425 885 590 1050 760" fill="none" stroke="#b9d7e8" stroke-width="95" opacity=".8"/>
     <path d="M-80 180 C180 240 310 175 555 290 C710 365 735 515 1040 565" fill="none" stroke="#ffffff" stroke-width="20"/>
@@ -124,9 +126,9 @@ function mapSvg(rows){
     <path d="M80 70 L325 690 M250 20 L490 710 M450 20 L680 705" stroke="#d0dbd5" stroke-width="6" opacity=".9"/>
     <path d="M0 320 L610 80 M80 680 L870 120 M280 720 L930 245" stroke="#d0dbd5" stroke-width="5" opacity=".8"/>
     <path d="M535 165 C660 140 785 185 835 290 C874 370 827 455 735 485 C620 522 520 460 500 360 C483 280 492 210 535 165Z" fill="#d6eadb"/>
-    <text x="605" y="348" class="map-label" font-size="22">The University of Queensland</text>
+    <text x="605" y="348" class="map-label" font-size="22">St Lucia neighbourhoods</text>
     <text x="175" y="380" class="map-label" font-size="24">St Lucia</text>
-    <g transform="translate(580 285)"><rect class="destination-label" x="-58" y="-24" width="116" height="42" rx="12"/><text x="0" y="4" text-anchor="middle" font-size="15" font-weight="700" fill="#283931">${escapeHtml(state.destination)}</text></g>
+    <g transform="translate(580 285)"><rect class="destination-label" x="-150" y="-24" width="300" height="42" rx="12"/><text x="0" y="4" text-anchor="middle" font-size="15" font-weight="700" fill="#283931">${escapeHtml(state.destination.length > 30 ? state.destination.slice(0,27) + "…" : state.destination)}</text></g>
     ${pins}
   </svg>`;
 }
@@ -139,6 +141,7 @@ function renderMap(){
         <div class="search-input"><span class="left-icon">⌕</span><input id="map-search" value="${escapeHtml(state.destination)}" aria-label="Search destination"><button class="clear" id="clear-search">×</button></div>
         <button class="square-btn" id="apply-search">⌕</button>
       </div>
+      <p class="results-note">Sample options for ${escapeHtml(state.destination)}. Search changes the destination label; routes and distances are not calculated.</p>
       <div class="filters">
         <button class="filter-chip ${state.filters.cheap?'active':''}" data-filter="cheap">Price ≤ $3</button>
         <button class="filter-chip ${state.filters.long?'active':''}" data-filter="long">3h+ limit</button>
@@ -165,8 +168,8 @@ function renderListTable(rows){
 
 function wireMapInteractions(){
   const searchInput = document.getElementById('map-search');
-  document.getElementById('apply-search').addEventListener('click', ()=>{ state.destination = searchInput.value.trim() || 'UQ Library'; renderMap(); });
-  searchInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ state.destination=searchInput.value.trim() || 'UQ Library'; renderMap(); }});
+  document.getElementById('apply-search').addEventListener('click', ()=>{ state.destination = searchInput.value.trim() || 'Hawken Drive shops'; renderMap(); });
+  searchInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ state.destination=searchInput.value.trim() || 'Hawken Drive shops'; renderMap(); }});
   document.getElementById('clear-search').addEventListener('click', ()=>{ searchInput.value=''; searchInput.focus(); });
   document.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', ()=>{ state.filters[b.dataset.filter]=!state.filters[b.dataset.filter]; renderMap(); }));
   document.querySelectorAll('[data-view]').forEach(b => b.addEventListener('click', ()=>{ state.view=b.dataset.view; renderMap(); }));
@@ -191,7 +194,7 @@ function renderDetail(){
           <div class="stat-box"><small>Price</small><strong>${p.priceText}</strong></div>
           <div class="stat-box"><small>Time limit</small><strong>${p.limitText}</strong></div>
           <div class="stat-box"><small>Walk</small><strong>${p.distance} min</strong></div>
-          <div class="stat-box"><small>Data</small><strong>Updated 2 min ago</strong></div>
+          <div class="stat-box"><small>Data</small><strong>Sample data</strong></div>
         </div>
         <div class="detail-actions"><button class="primary-btn" id="directions">Get Directions</button><button class="secondary-btn" id="view-map">View on Map</button></div>
         <div class="info-table">
@@ -212,7 +215,7 @@ function renderDetail(){
 function renderSettings(){
   const s=state.settings;
   app.innerHTML = `<div class="page">${navMarkup()}<main class="container narrow">
-    <h1 class="section-title">Preferences</h1><p class="section-subtitle">Customise how ParkUQ ranks and displays parking options.</p>
+    <h1 class="section-title">Preferences</h1><p class="section-subtitle">Customise how Park St Lucia ranks and displays parking options.</p>
     <section class="panel">
       <div class="form-group"><label>Sort by</label><div class="radio-row">
         ${[['cheap','Cheapest'],['close','Closest'],['available','Most available']].map(([v,l])=>`<label><input type="radio" name="sort" value="${v}" ${s.sort===v?'checked':''}> ${l}</label>`).join('')}
@@ -220,7 +223,7 @@ function renderSettings(){
       <div class="form-group"><label for="max-price">Maximum price</label><select class="select-field" id="max-price"><option value="any">Any price</option><option value="0">Free only</option><option value="3">$3 / hour</option><option value="5">$5 / hour</option></select></div>
       <div class="form-group"><label for="min-limit">Minimum time limit</label><select class="select-field" id="min-limit"><option value="any">Any</option><option value="2">2+ hours</option><option value="3">3+ hours</option><option value="4">4+ hours</option></select></div>
       <div class="switch-row"><span><strong>Show only available spaces</strong><br><small style="color:var(--muted)">Hide options with no reported spaces</small></span><button class="switch ${s.onlyAvailable?'on':''}" data-switch="onlyAvailable" aria-label="Toggle available spaces"></button></div>
-      <div class="switch-row"><span><strong>Include free parking</strong><br><small style="color:var(--muted)">Show free commuter and public alternatives</small></span><button class="switch ${s.includeFree?'on':''}" data-switch="includeFree" aria-label="Toggle free parking"></button></div>
+      <div class="switch-row"><span><strong>Include free parking</strong><br><small style="color:var(--muted)">Include illustrative free local options</small></span><button class="switch ${s.includeFree?'on':''}" data-switch="includeFree" aria-label="Toggle free parking"></button></div>
       <button class="primary-btn full-btn" id="save-settings">Save Preferences</button><div class="success-note" id="settings-success">Preferences saved. Your results will now use these settings.</div>
     </section>
   </main></div>`;
@@ -232,36 +235,36 @@ function renderSettings(){
     state.settings.sort=document.querySelector('input[name="sort"]:checked').value;
     state.settings.maxPrice=document.getElementById('max-price').value;
     state.settings.minLimit=document.getElementById('min-limit').value;
-    localStorage.setItem('parkuq-settings', JSON.stringify(state.settings));
+    localStorage.setItem('park-st-lucia-settings', JSON.stringify(state.settings));
     document.getElementById('settings-success').classList.add('show');
   });
 }
 
 function renderDashboard(){
   app.innerHTML = `<div class="page">${navMarkup()}<main class="container">
-    <h1 class="section-title">Your Dashboard</h1><p class="section-subtitle">Quick access to recent searches and saved locations.</p>
+    <h1 class="section-title">Your Dashboard</h1><p class="section-subtitle">Try a local destination or revisit your parking preferences.</p>
     <div class="dashboard-grid">
-      <section class="dashboard-card"><h2>Recent Searches</h2><div class="row-list">
-        ${[['UQ Library','2 hours ago'],['UQ Union','1 day ago'],['St Lucia Community Hall','3 days ago']].map(([n,t])=>`<div class="row-item"><div class="row-main"><div class="row-icon">⌕</div><div><strong>${n}</strong><br><small>${t}</small></div></div><button class="link-btn recent-search" data-place="${n}">Search again →</button></div>`).join('')}
+      <section class="dashboard-card"><h2>Explore St Lucia</h2><div class="row-list">
+        ${[['Hawken Drive shops','Shopping'],['St Lucia neighbourhood visit','Visiting friends'],['Local recreation','Time outdoors']].map(([n,t])=>`<div class="row-item"><div class="row-main"><div class="row-icon">⌕</div><div><strong>${n}</strong><br><small>${t}</small></div></div><button class="link-btn recent-search" data-place="${n}">Explore →</button></div>`).join('')}
       </div></section>
-      <section class="dashboard-card dashboard-highlight"><div><h2>Best nearby right now</h2><p>Based on your current preference for availability, UQ Central Car Park is the strongest match in this prototype.</p></div><div class="metric">12+ <span>spaces shown</span></div><button class="primary-btn" style="background:white;color:var(--green-900);width:max-content" id="dash-open">View parking</button></section>
-      <section class="dashboard-card"><h2>Saved Locations</h2><div class="row-list"><div class="row-item"><div class="row-main"><div class="row-icon">★</div><strong>Home (St Lucia)</strong></div><span>›</span></div><div class="row-item"><div class="row-main"><div class="row-icon">★</div><strong>UQ Gym</strong></div><span>›</span></div></div></section>
-      <section class="dashboard-card"><h2>Prototype note</h2><p style="color:var(--muted);line-height:1.7">Availability numbers in this website are simulated to demonstrate the interaction. A production version would need authorised data from UQ, Council or parking providers.</p></section>
+      <section class="dashboard-card dashboard-highlight"><div><h2>Local parking example</h2><p>Compare a sample short-stay option near local shops. Adjust your preferences to explore other options.</p></div><div class="metric">12+ <span>sample spaces</span></div><button class="primary-btn" style="background:white;color:var(--green-900);width:max-content" id="dash-open">View parking</button></section>
+      <section class="dashboard-card"><h2>Example saved places</h2><div class="row-list"><div class="row-item"><div class="row-main"><div class="row-icon">★</div><strong>Home (St Lucia)</strong></div><span>›</span></div><div class="row-item"><div class="row-main"><div class="row-icon">★</div><strong>Local shops</strong></div><span>›</span></div></div></section>
+      <section class="dashboard-card"><h2>Prototype note</h2><p style="color:var(--muted);line-height:1.7">Availability numbers in this website are simulated to demonstrate the interaction. A working service would need verified data from the council and local parking providers.</p></section>
     </div>
   </main></div>`;
   wireNav();
   document.querySelectorAll('.recent-search').forEach(b=>b.addEventListener('click',()=>{state.destination=b.dataset.place;mount('map');}));
-  document.getElementById('dash-open').addEventListener('click',()=>mount('map'));
+  document.getElementById('dash-open').addEventListener('click',()=>{state.selected='shops';mount('detail');});
 }
 
 function renderAbout(){
   app.innerHTML = `<div class="page">${navMarkup()}<main class="container">
-    <h1 class="section-title">About the prototype</h1><p class="section-subtitle">A DECO2500 concept for reducing uncertainty when finding parking around UQ and St Lucia.</p>
+    <h1 class="section-title">About the prototype</h1><p class="section-subtitle">A community parking concept for people who live, work, shop and visit in St Lucia.</p>
     <div class="about-grid">
       <section class="about-card"><h3>What problem does it address?</h3><p>Drivers can face difficulty finding parking that is available, affordable, close enough and valid for the length of their visit. Existing tools often focus on payment, permits or restrictions rather than combining these decisions in one place.</p></section>
-      <section class="about-card"><h3>Core design idea</h3><ul><li>Search by destination</li><li>Compare availability, price, time limit and walking distance</li><li>Filter or rank options by personal preferences</li><li>Show alternatives such as free commuter parking</li></ul></section>
+      <section class="about-card"><h3>Core design idea</h3><ul><li>Search by destination</li><li>Compare availability, price, time limit and walking distance</li><li>Filter or rank options by personal preferences</li><li>Compare options for short visits and longer stays</li></ul></section>
       <section class="about-card"><h3>Prototype limitations</h3><p>This is an interactive demonstration, not a live parking service. Availability, prices and operating details are sample values used to test the user flow.</p></section>
-      <section class="about-card"><h3>Why this is useful for the assignment</h3><p>The prototype demonstrates the key interaction path from research insight to solution: reducing uncertainty before the user arrives at St Lucia.</p></section>
+      <section class="about-card"><h3>Who is it for?</h3><p>St Lucia residents, local workers, shoppers and visitors. The concept supports everyday trips across the suburb, from visiting friends to local errands and recreation.</p></section>
     </div>
   </main></div>`;
   wireNav();
