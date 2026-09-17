@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0e5b45" />
+  <title>ParkUQ — UQ & St Lucia Parking Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app"></div>
+
+  <template id="nav-template">
+    <header class="topbar">
+      <button class="brand" data-nav="home" aria-label="Go to home">ParkUQ<span></span></button>
+      <nav class="nav-links" aria-label="Main navigation">
+        <button data-nav="map">Map</button>
+        <button data-nav="dashboard">Dashboard</button>
+        <button data-nav="settings">Preferences</button>
+        <button data-nav="about">About</button>
+      </nav>
+      <button class="profile-button" data-nav="dashboard" aria-label="Open dashboard">E</button>
+      <button class="mobile-menu" aria-label="Open menu">☰</button>
+    </header>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
